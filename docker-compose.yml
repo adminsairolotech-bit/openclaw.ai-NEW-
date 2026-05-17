@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: openclaw-gateway
+    ports:
+      - "18789:18789"
+      - "18790:18790"
+    environment:
+      - PORT=18789
+      - HOST=0.0.0.0
+      # Add your API keys here
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - OPENCLAW_LLM_PROVIDER=${OPENCLAW_LLM_PROVIDER:-openai}
+      - OPENCLAW_LLM_MODEL=${OPENCLAW_LLM_MODEL:-gpt-4o}
+    volumes:
+      - openclaw-data:/home/node/.openclaw
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  openclaw-data:
